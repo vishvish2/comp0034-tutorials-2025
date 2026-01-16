@@ -1,7 +1,7 @@
 import streamlit as st
+import pandas as pd
 
 from io import StringIO
-import pandas as pd
 from src.data.mock_api import get_event_data
 from src.utils.line_chart import line_chart
 
