@@ -8,17 +8,16 @@ left_col, right_col = st.columns([1, 3])
 
 with left_col:
     st.subheader("Selectors")
+    opts = ("Trends in number of sports, events, counties, participants",
+            "Participants by gender",
+            "Paralympics locations")
     select_chart = st.selectbox("Choose a chart:",
-                                ("Trends in number of sports, events, \
-                                 counties, participants",
-                                 "Participants by gender",
-                                 "Paralympics locations"),
+                                opts,
                                 index=None,
                                 placeholder="Select chart to view...")
 
     # Conditional rendering based on the option chosen in select_chart
-    if select_chart == "Trends in number of sports, events, counties, \
-                        participants":
+    if select_chart == opts[0]:
         select_trend_type = st.selectbox("Choose the feature to display:",
                                          ["Sports", "Events", "Countries",
                                           "Participants"])
