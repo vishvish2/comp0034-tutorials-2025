@@ -143,7 +143,7 @@ You may need to refer to:
 
 The suggested layout is:
 
-<img alt="Paralympics app grid" src="../img/grid.png" width="30%"/>
+<img alt="Paralympics app grid" src="../img/grid.png" style="width: 30%"/>
 
 - Row 1 with 2-columns:
     - Column 1 spans 4-columns and contains selectors
@@ -211,8 +211,8 @@ import dash_bootstrap_components as dbc
 
 row_one = dbc.Row(
     [
-        dbc.Col(html.Div("Selectors"), width=4),
-        dbc.Col(html.Div("Selectors"), width=8),
+        dbc.Col(html.Div("Selectors", id="selectors"), width=4),
+        dbc.Col(html.Div("Charts", id="chart-display"), width=8),
     ]
 )
 

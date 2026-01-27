@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-Flask
-pandas
-streamlit
-dash
-dash-bootstrap-components
-dash_ag_grid
-plotly

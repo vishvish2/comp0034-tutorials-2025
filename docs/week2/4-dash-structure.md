@@ -1,4 +1,4 @@
-# Dash app directory structure
+# 4. Dash app directory structure
 
 The Dash documentation has minimal guidance on how to structure Dash apps. For this you will need
 to review community forums and other repositories to understand the practices used.

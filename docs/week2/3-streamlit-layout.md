@@ -1,4 +1,4 @@
-# Streamlit layout
+# 3. Streamlit layout
 
 ## Create a new project in your IDE
 

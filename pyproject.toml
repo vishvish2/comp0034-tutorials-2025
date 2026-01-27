@@ -5,17 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "comp0034-activities"
 version = "2025.01"
+requires-python = ">=3.12"
 dependencies = [
-    "fastapi",
-    "uvicorn",
-    "Flask",
+    "flask",
     "pandas",
     "streamlit",
     "dash",
-    "plotly",
-    "dash_ag_grid",
-    "dash-bootstrap-components"
+    "dash-ag-grid",
+    "dash-bootstrap-components",
+    "openpyxl",
+    "fastapi",
+    "uvicorn"
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
