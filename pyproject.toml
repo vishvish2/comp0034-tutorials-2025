@@ -15,5 +15,6 @@ dependencies = [
     "dash-bootstrap-components",
     "openpyxl",
     "fastapi",
-    "uvicorn"
+    "uvicorn",
+    "plotly"
 ]
