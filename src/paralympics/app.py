@@ -1,6 +1,11 @@
+from typing import Any, Dict, List
+import requests
 import streamlit as st
 
 from paralympics.charts import scatter_map, line_chart, bar_chart
+
+API_BASE = "http://127.0.0.1:8000"  # REST API default URL
+TIMEOUT = 5  # seconds
 
 st.set_page_config(page_title="Paralympics", layout="wide")
 
@@ -15,6 +20,100 @@ def clear_other_state():
     """Clear irrelevant widget state whenever the chart choice changes."""
     for key in ["trend_feature", "bar_pills"]:
         st.session_state.pop(key, None)
+
+
+# Helper functions for interacting with the REST API
+
+def _get(url: str, **kwargs) -> requests.Response:
+    """HTTP GET with a uniform timeout and error handling."""
+    try:
+        resp = requests.get(url, timeout=TIMEOUT, **kwargs)
+        resp.raise_for_status()
+        return resp
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Request failed for {url}: {e}") from e
+
+
+@st.cache_data(show_spinner=False)
+def count_questions() -> int:
+    """Return the number of questions available."""
+    resp = _get(f"{API_BASE}/question")
+    data = resp.json()
+    return len(data)
+
+
+@st.cache_data(show_spinner=False)
+def get_question(qid: int) -> Dict[str, Any]:
+    """Return the question object by ID."""
+    resp = _get(f"{API_BASE}/question/{qid}")
+    return resp.json()
+
+
+@st.cache_data(show_spinner=False)
+def get_responses(qid: int) -> List[Dict[str, Any]]:
+    """Return the responses for a given question ID."""
+    resp = _get(f"{API_BASE}/response/search", params={"question_id": qid})
+    return resp.json()
+
+
+def render_question_block():
+    if "q_index" not in st.session_state:
+        st.session_state.q_index = 1
+
+    q_index = st.session_state.q_index
+
+    # Fetch total count
+    num_q = count_questions()
+
+    # If past the last question, show completion and exit
+    if q_index > num_q:
+        st.success("Questions complete, well done!")
+        return
+
+    # Fetch the current question + its responses
+    q = get_question(q_index)
+    responses = get_responses(q_index)
+
+    # Build radio options as label -> id map
+    label_to_id = {
+        r.get("response_text", ""): r.get("id") for r in responses if
+        r.get("response_text", "")
+                   }
+
+    with st.form(key="quiz_form", clear_on_submit=False):
+        st.write(q.get("question_text", ""))
+        selected_label = st.radio(
+            "Select one answer:",
+            options=list(label_to_id.keys()),
+            index=None,
+        )
+        submitted = st.form_submit_button("Submit answer")
+
+    # Handle submission
+    if submitted:
+        if not selected_label:
+            st.info("Please select an answer.")
+            return
+
+        selected_id = str(label_to_id[selected_label])
+
+        # Find the selected response to inspect correctness
+        selected_obj = next(
+            (r for r in responses if str(r.get("id")) == selected_id),
+            None,
+        )
+
+        if selected_obj and selected_obj.get("is_correct"):
+            # Advance or finish
+            if q_index >= num_q:
+                st.session_state.q_index = num_q + 1
+                st.success("Questions complete, well done!")
+            else:
+                st.session_state.q_index = q_index + 1
+                # Using rerun ensures the next question renders cleanly
+                st.rerun()
+        else:
+            st.info("Please try again!")
 
 
 left_col, right_col = st.columns([1, 3])
@@ -49,13 +148,15 @@ with left_col:
 
 with right_col:
     # 4. Draw a line chart after the feature is selected
-    if st.session_state.get("chart_choice") == "Trends" and st.session_state.get("trend_feature"):
+    if st.session_state.get("chart_choice") == "Trends"\
+       and st.session_state.get("trend_feature"):
         feature = str.lower(st.session_state.trend_feature)
         fig = line_chart(feature)
         st.plotly_chart(fig, width="content")
 
     # 6. Draw one or more bar charts depending on pill selection
-    if st.session_state.get("chart_choice") == "Participants by gender" and st.session_state.get(
+    if st.session_state.get("chart_choice") == "Participants by gender"\
+       and st.session_state.get(
             "bar_pills"):
         for pill in st.session_state.bar_pills:
             event_type = str.lower(pill)
@@ -71,18 +172,10 @@ with right_col:
 st.divider()  # Added to show the separation visually, not required
 full_width = st.container()
 
-with full_width:
-    st.subheader("Questions")
 
 options = ["Winter", "Summer"]
 selection = st.pills("Seasons", options, selection_mode="multi")
 st.markdown(f"Your selected options: {selection}.")
-
-with full_width:
-    st.write("Answer the questions using the charts to help you.")
-    with st.form("questions"):
-        question_one = st.text_input("Question one?", "Enter your answer here")
-        st.form_submit_button("Submit your answers")
 
 # Inject custom CSS
 st.markdown("""
@@ -97,3 +190,8 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
+# Questions
+question_container = st.container()
+with question_container:
+    render_question_block()
