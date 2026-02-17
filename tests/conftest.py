@@ -10,7 +10,7 @@ import threading
 
 @pytest.fixture(scope="session", autouse=True)
 def api_server():
-    """Start the REST API server before app tests."""
+    """Start the REST API server before app testing."""
 
     # Create a copy of the database
     root = Path(__file__).parent.parent
