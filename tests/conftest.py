@@ -6,6 +6,18 @@ import pytest
 import uvicorn
 import shutil
 import threading
+import requests
+
+
+def wait_for_http(url, timeout=60):
+    start = time.time()
+    while time.time() - start < timeout:
+        try:
+            requests.get(url)
+            return
+        except requests.ConnectionError:
+            time.sleep(1)
+    raise RuntimeError(f"Server at {url} did not start within {timeout}s")
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -40,8 +52,7 @@ def api_server():
 
     # Use a helper function to wait for the server to load
     # Alternative use `time.sleep(10)`
-    # wait_for_http("http://127.0.0.1:8000")
-    time.sleep(10)
+    wait_for_http("http://127.0.0.1:8000")
 
     yield
 
@@ -69,7 +80,8 @@ def app_server():
         *('--server.headless', 'false'),
     ])
 
-    time.sleep(10)  # give Streamlit some time to start
+    # time.sleep(10)  # give Streamlit some time to start
+    wait_for_http("http://127.0.0.1:8501")
 
     yield url
 
