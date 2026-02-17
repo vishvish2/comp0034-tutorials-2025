@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
-from data import ParalympicsData
+from data.data_class import ParalympicsData
 
 app = FastAPI(title="Mock Paralympics API")
 

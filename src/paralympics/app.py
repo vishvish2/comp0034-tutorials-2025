@@ -7,7 +7,7 @@ from paralympics.charts import scatter_map, line_chart, bar_chart
 API_BASE = "http://127.0.0.1:8000"  # REST API default URL
 TIMEOUT = 5  # seconds
 
-st.set_page_config(page_title="Paralympics", layout="wide")
+st.set_page_config(page_title="Paralympics Dashboard", layout="wide")
 
 # Row 1: two columns
 # use [1,1] for equal widths or e.g. [1,3] for 1:3
@@ -192,6 +192,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Questions
+st.header("Questions")
 question_container = st.container()
 with question_container:
     render_question_block()
