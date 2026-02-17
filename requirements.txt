@@ -1,0 +1,15 @@
+pytest
+pytest-cov
+pylint
+flake8
+ruff
+fastapi
+uvicorn
+Flask
+pandas
+streamlit
+dash
+plotly
+dash_ag_grid
+dash-bootstrap-components
+pytest-playwright
