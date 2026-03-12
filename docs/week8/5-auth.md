@@ -15,8 +15,10 @@ extra marks and at worst can hinder marking.
 The authentication flow between frontend and backend apps works like this:
 
 ```mermaid
-
 sequenceDiagram
+    accTitle: Sequence diagram: authentication
+    accDescr: This diagram shows the authentication flow from the frontend app (Streamlit) to the backend app (FastAPI).
+
     autonumber
     participant U as User
     participant S as Streamlit App
@@ -225,7 +227,7 @@ from typing import Any
 
 import jwt
 
-from backend.core.config import settings
+from backend.core.config import get_settings
 
 
 def create_access_token(subject: str | Any) -> str:
@@ -237,6 +239,7 @@ def create_access_token(subject: str | Any) -> str:
     Returns:
        Encoded JWT access token.
     """
+    settings = get_settings()
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expires)
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
