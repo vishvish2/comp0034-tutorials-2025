@@ -16,5 +16,10 @@ dependencies = [
     "openpyxl",
     "fastapi",
     "uvicorn",
-    "pylint"
+    "pylint",
+    "fastapi[standard]",
+    "sqlmodel",
+    "pytest",
+    "pytest-cov",
+    "alembic",
 ]
