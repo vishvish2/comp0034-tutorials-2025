@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from sqlmodel import Session
 
 from backend.core.db import engine, init_db
+from backend.routes import games_router
 
 
 @asynccontextmanager
@@ -40,6 +41,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register the router after you app = FastAPI() the CORSMiddleware is registered.
+app.include_router(games_router.router)
 
 
 @app.get("/")
