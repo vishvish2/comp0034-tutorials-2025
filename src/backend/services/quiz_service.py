@@ -5,6 +5,7 @@ from sqlmodel import select
 
 from backend.core.deps import SessionDep
 from backend.models.models import Question, Response
+from backend.models.schemas import QuestionCreate, ResponseCreate
 
 
 class QuizService:
@@ -51,3 +52,37 @@ class QuizService:
         if not result:
             raise HTTPException(status_code=404, detail=f"No responses found for question with id {q_id}")
         return list(result)
+    
+    @staticmethod
+    def create_question(db: SessionDep, question_create: QuestionCreate) -> Question:
+        """ Method to create a new Question.
+
+        Args:
+            db: SQLModel session
+            question_create: data for a new Question object
+
+        Returns:
+            Question: Question object
+            """
+        new_q = Question.model_validate(question_create)
+        db.add(new_q)
+        db.commit()
+        db.refresh(new_q)
+        return new_q
+
+    @staticmethod
+    def create_response(db: SessionDep, response_create: ResponseCreate) -> Response:
+        """ Method to create a new response.
+
+        Args:
+            db: SQLModel session
+            response_create: data for a new Response object
+
+        Returns:
+            Response: Response object
+        """
+        new_r = Response.model_validate(response_create)
+        db.add(new_r)
+        db.commit()
+        db.refresh(new_r)
+        return new_r

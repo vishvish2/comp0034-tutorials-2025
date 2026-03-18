@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from backend.core.deps import SessionDep
-from backend.models.schemas import QuestionRead, ResponseRead
+from backend.models.schemas import QuestionRead, ResponseRead, QuestionCreate, ResponseCreate
 from backend.services.quiz_service import QuizService
 
 router = APIRouter()
@@ -37,3 +37,17 @@ def get_responses_for_question(session: SessionDep, q_id: int):
     """
     responses = crud.get_responses_by_question(session, q_id)
     return responses
+
+
+@router.post("/questions", response_model=QuestionRead)
+def create_question(session: SessionDep, question_data: QuestionCreate):
+    """ Creates a new question  """
+    new_question = crud.create_question(session, question_data)
+    return new_question
+
+
+@router.post("/responses", response_model=ResponseRead)
+def create_response(session: SessionDep, create_data: ResponseCreate):
+    """ Creates a new question  """
+    new_question = crud.create_response(session, create_data)
+    return new_question

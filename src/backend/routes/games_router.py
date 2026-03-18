@@ -1,7 +1,10 @@
-from fastapi import APIRouter
+from typing import Any
+
+from fastapi import APIRouter, status
+from fastapi.exceptions import HTTPException
 
 from backend.core.deps import SessionDep
-from backend.models.schemas import GamesRead, ParalympicsRead
+from backend.models.schemas import GamesCreate, GamesRead, GamesUpdate, ParalympicsRead
 from backend.services.games_service import GamesService
 
 router = APIRouter(
@@ -35,3 +38,11 @@ def get_games_by_id(session: SessionDep, games_id: int):
     """ Returns the data for one Paralympics by its id """
     games = crud.get_games_by_id(session, games_id)
     return games
+
+
+@router.post("/games", response_model=GamesRead, status_code=status.HTTP_201_CREATED)
+def create_games(session: SessionDep, games_data: GamesCreate) -> Any:
+    """ Creates a new paralympic Games """
+    new_games = crud.create_games(session, games_data)
+    return new_games
+

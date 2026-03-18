@@ -5,6 +5,7 @@ from sqlmodel import select
 
 from backend.core.deps import SessionDep
 from backend.models.models import Country, Games, Host
+from backend.models.schemas import GamesCreate
 
 
 class GamesService:
@@ -81,3 +82,21 @@ class GamesService:
         if not data:
             return []
         return data
+    
+
+    def create_games(session: SessionDep, games_create: GamesCreate) -> Games:
+        """ Method to create a new games.
+
+
+        Args:
+            session: FastAPI dependency with SQLModel session
+            games_create: data for a new Paralympic Games object
+
+        Returns:
+            Games: Paralympic Games object
+            """
+        new_games = Games.model_validate(games_create)
+        session.add(new_games)
+        session.commit()
+        session.refresh(new_games)
+        return new_games
