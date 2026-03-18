@@ -1,9 +1,6 @@
 import streamlit as st
 
 
-st.page_config("Teacher")
-
-
 def process_form() -> None:
     # Get the form values from the session state
     question_text = st.session_state.question_text
