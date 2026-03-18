@@ -1,29 +1,39 @@
 from fastapi import APIRouter
 
 from backend.core.deps import SessionDep
-from backend.models.models import Question, Response
+from backend.models.schemas import QuestionRead, ResponseRead
 from backend.services.quiz_service import QuizService
 
 router = APIRouter()
 
 crud = QuizService()
 
-@router.get("/question", response_model=list[Question])
+
+@router.get("/questions", response_model=list[QuestionRead])
 def get_questions(session: SessionDep):
-    """ Returns the data for all questions"""
+    """ Returns the data for all questions
+
+    NB: Front-end route needs to be changed from '/question' to '/questions'
+    """
     questions = crud.get_questions(session)
     return questions
 
 
-@router.get("/question/{q_id}", response_model=Question)
+@router.get("/questions/{q_id}", response_model=QuestionRead)
 def get_question(session: SessionDep, q_id: int):
-    """ Returns the data for one questions"""
+    """ Returns the data for one questions
+
+    NB: Front-end route needs to be changed from '/question/q_id' to '/questions/{q_id}'
+    """
     question = crud.get_question(session, q_id=q_id)
     return question
 
 
-@router.get("/response/search", response_model=list[Response])
-def get_responses_for_question(session: SessionDep, question_id: int):
-    """ Returns the data for all responses for a given question"""
-    responses = crud.get_responses_by_question(session, question_id)
+@router.get("/questions/{q_id}/responses", response_model=list[ResponseRead])
+def get_responses_for_question(session: SessionDep, q_id: int):
+    """ Returns the data for all responses for a given question
+
+    NB: Front-end route needs to be changed from '/question/search' to '/questions/{q_id}/responses'
+    """
+    responses = crud.get_responses_by_question(session, q_id)
     return responses

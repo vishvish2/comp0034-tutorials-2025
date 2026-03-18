@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from backend.core.deps import SessionDep
-from backend.models.models import Games, Paralympics
+from backend.models.schemas import GamesRead, ParalympicsRead
 from backend.services.games_service import GamesService
 
 router = APIRouter(
@@ -11,14 +11,14 @@ router = APIRouter(
 crud = GamesService()
 
 
-@router.get("/games", response_model=list[Games])
+@router.get("/games", response_model=list[GamesRead])
 def get_games(session: SessionDep):
     """ Returns the data for all Paralympics"""
     games = crud.get_games(session)
     return games
 
 
-@router.get("/all", response_model=list[Paralympics])
+@router.get("/all", response_model=list[ParalympicsRead])
 def get_chart_data(session: SessionDep):
     """ Returns data for the charts
 
@@ -30,7 +30,7 @@ def get_chart_data(session: SessionDep):
     return data
 
 
-@router.get("/games/{games_id}", response_model=Games)
+@router.get("/games/{games_id}", response_model=GamesRead)
 def get_games_by_id(session: SessionDep, games_id: int):
     """ Returns the data for one Paralympics by its id """
     games = crud.get_games_by_id(session, games_id)
