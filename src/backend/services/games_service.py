@@ -119,3 +119,28 @@ class GamesService:
             session.delete(games)
             session.commit()
             return {}
+    
+    def update_games(self, session: SessionDep, games_id: int, update_data: dict):
+        """ Method to update a Games object.
+
+        This method can be used by either PUT or PATCH. The route code will handle the
+        validation against the schema.
+
+        Args:
+            session: FastAPI dependency with SQLModel session
+            games_id: id of the Games to update
+            update_data: data to update the Games object
+
+        Returns:
+            games: Paralympic Games object
+            """
+        games = self.get_games_by_id(session, games_id)
+        if games is None:
+            return None
+
+        for key, value in update_data.items():
+            setattr(games, key, value)
+
+        session.commit()
+        session.refresh(games)
+        return games

@@ -63,3 +63,23 @@ def delete_games(session: SessionDep, games_id: int) -> None:
     else:
         return
 
+
+@router.patch("/games/{games_id}")
+def update_games(games_id: int, data: GamesUpdate, session: SessionDep):
+    """ Partial updates for a paralympic Games
+
+    Note: data.model_dump(exclude_unset=True) allows for only some fields to be present in the data
+    """
+    games = crud.update_games(session=session, games_id=games_id,
+                              update_data=data.model_dump(exclude_unset=True))
+    return games
+
+
+@router.put("/games/{games_id}")
+def replace_games(games_id: int, data: GamesCreate, session: SessionDep):
+    """ Updates a paralympic Games by replacing the entire resource
+
+    Note: model_dump() expects all fields to be present in the data and applies the validation
+    """
+    games = crud.update_games(session=session, games_id=games_id, update_data=data.model_dump())
+    return games

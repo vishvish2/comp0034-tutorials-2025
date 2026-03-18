@@ -122,3 +122,54 @@ class QuizService:
             session.delete(r)
             session.commit()
             return {}
+        
+    
+    def update_question(self, session: SessionDep, q_id: int, update_data: dict):
+        """ Method to update a Question object.
+
+        This method can be used by either PUT or PATCH. The route code will handle the
+        validation against the schema.
+
+        Args:
+            session: FastAPI dependency with SQLModel session
+            q_id: id of the Question to update
+            update_data: data to update the Question object
+
+        Returns:
+            q: Question object
+            """
+        q = self.get_question(session, q_id)
+        if q is None:
+            return None
+
+        for key, value in update_data.items():
+            setattr(q, key, value)
+
+        session.commit()
+        session.refresh(q)
+        return q
+
+    def update_response(self, session: SessionDep, r_id: int, update_data: dict):
+        """ Method to update a Response object.
+
+        This method can be used by either PUT or PATCH. The route code will handle the
+        validation against the schema.
+
+        Args:
+            session: FastAPI dependency with SQLModel session
+            r_id: id of the Response to update
+            update_data: data to update the Response object
+
+        Returns:
+            r: Response object
+            """
+        r = self.get_response(session, r_id)
+        if r is None:
+            return None
+
+        for key, value in update_data.items():
+            setattr(r, key, value)
+
+        session.commit()
+        session.refresh(r)
+        return r
