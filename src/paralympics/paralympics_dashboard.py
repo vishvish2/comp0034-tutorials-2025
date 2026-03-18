@@ -74,7 +74,7 @@ def get_responses(qid: int) -> List[Dict[str, Any]]:
     Returns:
         List[Dict[str, Any]]: Response JSON containing the responses for a given question ID
         """
-    resp = _get(f"{API_BASE}/questions/{qid}/responses")
+    resp = _get(f"{API_BASE}/response/search", params={"question_id": qid})
     return resp.json()
 
 

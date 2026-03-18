@@ -1,8 +1,10 @@
 from fastapi import APIRouter, status
 from fastapi.exceptions import HTTPException
 
-from backend.core.deps import SessionDep
-from backend.models.schemas import QuestionRead, ResponseRead, QuestionCreate, ResponseCreate, QuestionUpdate, ResponseUpdate
+from backend.core.deps import CurrentUser, SessionDep
+from backend.models.schemas import QuestionCreate, QuestionRead, QuestionUpdate, \
+    QuestionWithResponsesRead, ResponseCreate, \
+    ResponseRead, ResponseUpdate
 from backend.services.quiz_service import QuizService
 
 router = APIRouter()
@@ -30,28 +32,41 @@ def get_question(session: SessionDep, q_id: int):
     return question
 
 
-@router.get("/questions/{q_id}/responses", response_model=list[ResponseRead])
-def get_responses_for_question(session: SessionDep, q_id: int):
-    """ Returns the data for all responses for a given question
-
-    NB: Front-end route needs to be changed from '/question/search' to '/questions/{q_id}/responses'
-    """
-    responses = crud.get_responses_by_question(session, q_id)
+@router.get("/response/search", response_model=list[ResponseRead])
+def get_responses_for_question(session: SessionDep, question_id: int):
+    """ Returns the data for all responses for a given question"""
+    responses = crud.get_responses_by_question(session, question_id)
     return responses
 
 
-@router.post("/questions", response_model=QuestionRead)
-def create_question(session: SessionDep, question_data: QuestionCreate):
-    """ Creates a new question  """
-    new_question = crud.create_question(session, question_data)
-    return new_question
+@router.get("/questions/{q_id}/responses", response_model=QuestionWithResponsesRead)
+def get_question_with_responses(session: SessionDep, q_id: int):
+    """ Returns a question and its responses """
+    question = crud.get_question(session, q_id)
+    return question
 
 
-@router.post("/responses", response_model=ResponseRead)
-def create_response(session: SessionDep, create_data: ResponseCreate):
+# Route now protected by login
+@router.post("/questions", response_model=QuestionRead, status_code=status.HTTP_201_CREATED)
+def create_question(session: SessionDep, current_user: CurrentUser, question_data: QuestionCreate):
     """ Creates a new question  """
-    new_question = crud.create_response(session, create_data)
-    return new_question
+    if current_user:
+        new_question = crud.create_question(session, question_data)
+        return new_question
+    else:
+        raise HTTPException(status_code=401, detail="You must have an account and be logged in.")
+
+
+# Route now protected by login
+@router.post("/responses", response_model=ResponseRead, status_code=status.HTTP_201_CREATED)
+def create_response(session: SessionDep, current_user: CurrentUser, create_data: ResponseCreate):
+    """ Creates a new response to a question  """
+    if current_user:
+        new_question = crud.create_response(session, create_data)
+        return new_question
+    else:
+        raise HTTPException(status_code=401, detail="You must have an account and be logged in.")
+
 
 @router.delete("/responses/{response_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_response(session: SessionDep, response_id: int):

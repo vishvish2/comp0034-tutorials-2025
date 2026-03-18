@@ -1,28 +1,35 @@
+import shutil
 import subprocess
+import threading
 import time
 from pathlib import Path
+from urllib.request import urlopen
 
 import pytest
 import uvicorn
-import shutil
-import threading
-import requests
+from streamlit.testing.v1 import AppTest
 
 
-def wait_for_http(url, timeout=60):
+def wait_for_http(url, timeout=10):
     start = time.time()
-    while time.time() - start < timeout:
+    while True:
         try:
-            requests.get(url)
+            urlopen(url, timeout=1)
             return
-        except requests.ConnectionError:
-            time.sleep(1)
-    raise RuntimeError(f"Server at {url} did not start within {timeout}s")
+        except Exception:
+            if time.time() - start > timeout:
+                raise RuntimeError(f"Server did not start in time: {url}")
+            time.sleep(0.1)
 
 
 @pytest.fixture(scope="session", autouse=True)
 def api_server():
-    """Start the REST API server before app testing."""
+    """Start the REST API server before Dash app tests.
+
+     Makes a copy of the database before the server starts, and to replace
+     the original at the end of the tests.
+     NB this is not a recommended approach, this will be covered when the REST API is tested
+    """
 
     # Create a copy of the database
     root = Path(__file__).parent.parent
@@ -32,11 +39,10 @@ def api_server():
     if not _orig_db.exists():
         raise RuntimeError(f"Original DB not found: {_orig_db}")
 
-    # backup original database
+    # backup original
     shutil.copy2(_orig_db, _backup_db)
 
-    # Import the REST API app and run in a thread
-    from src.data.mock_api import app
+    from data.api import app
 
     thread = threading.Thread(
         target=uvicorn.run,
@@ -50,13 +56,11 @@ def api_server():
     )
     thread.start()
 
-    # Use a helper function to wait for the server to load
-    # Alternative use `time.sleep(10)`
     wait_for_http("http://127.0.0.1:8000")
 
     yield
 
-    # Teardown: restore the original database
+    # Teardown: restore original DB
     if _backup_db.exists():
         shutil.copy2(_backup_db, _orig_db)
         try:
@@ -67,10 +71,9 @@ def api_server():
 
 @pytest.fixture(scope="session")
 def app_server():
-    """Start a Streamlit app server for Playwright tests using the subprocess
-        library."""
+    """Start a Streamlit app server for Playwright tests using the subprocess library."""
 
-    app_path = "src/paralympics/app.py"
+    app_path = "src/paralympics/paralympics_dashboard.py"
     port = "8501"
     url = f"http://127.0.0.1:{port}"
 
@@ -80,15 +83,24 @@ def app_server():
         *('--server.headless', 'false'),
     ])
 
-    # time.sleep(10)  # give Streamlit some time to start
-    wait_for_http("http://127.0.0.1:8501")
+    # Wait for Streamlit app to be ready
+    wait_for_http(url)
 
     yield url
 
-    # Clean up/shutdown
+    # Clean shutdown        
     if process.poll() is None:
         process.terminate()
         try:
             process.wait(timeout=10)
         except subprocess.TimeoutExpired:
             process.kill()
+
+
+@pytest.fixture()
+def at():
+    app_file = Path(__file__).parent.parent.joinpath("src", "paralympics",
+                                                     "paralympics_dashboard.py")
+    at = AppTest.from_file(app_file)
+    at.run()
+    yield at

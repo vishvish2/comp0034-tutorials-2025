@@ -1,6 +1,6 @@
-import requests
 import pandas as pd
 import plotly.express as px
+import requests
 
 
 def get_api_data(url):
@@ -20,39 +20,63 @@ def get_api_data(url):
 
 
 def line_chart(feature):
-    """ Creates a line chart
+    """ Creates a line chart with data from the mock_api
 
     Data is displayed over time from 1960 onwards.
     The figure shows separate trends for the winter and summer events.
 
      Args:
-        feature (str): events, sports, countries, or participants
+        feature (str): events, sports, countries, participants
 
      Returns:
         fig: Plotly Express line figure
-
-     Raises:
-         ValueError: If the feature is not one of the valid options
      """
+
     if feature not in ["sports", "participants", "events", "countries"]:
         raise ValueError(
             'Invalid value for "feature". Must be one of ["sports", "participants", "events", "countries"]')
     else:
-        # Make sure it is lowercase to match the dataframe column names
         feature = feature.lower()
 
-    # Get the data from the REST API using the get_api_data() function you just created
     df = get_api_data("http://127.0.0.1:8000/all")
 
-    # Only the columns needed for this chart
     chart_df = df[["event_type", "year", feature]]
 
-    # Create a Plotly Express line chart with the following parameters
-    #    chart_df is the DataFrame
-    #    x="year" is the column to use as the x-axis
-    #    y=feature is the column to use as the y-axis
-    #    color="event_type" indicates if winter or summer
-    fig = px.line(chart_df, x="year", y=feature, color="event_type")
+    fig = px.line(chart_df,
+                  x="year",
+                  y=feature,
+                  color="event_type",
+                  # title=f"How has the number of {feature} changed over time?",
+                  template="simple_white")
+    return fig
+
+
+def scatter_map():
+    """ Creates a scatter chart with locations of all Paralympics
+
+    Returns:
+        fig: Plotly Express scatter map figure
+    """
+
+    df = get_api_data("http://127.0.0.1:8000/all")
+
+    chart_df = df[["year", "place_name", "latitude", "longitude"]].copy()
+
+    # Ensure latitude/longitude are numeric (non-numeric -> NaN)
+    chart_df['longitude'] = pd.to_numeric(chart_df['longitude'], errors='coerce')
+    chart_df['latitude'] = pd.to_numeric(chart_df['latitude'], errors='coerce')
+
+    # Add a new column that concatenates the place_name and year e.g. Barcelona 2012
+    chart_df['name'] = chart_df['place_name'] + ' ' + chart_df['year'].astype(str)
+
+    # Create the figure
+    fig = px.scatter_map(chart_df,
+                         lat=chart_df.latitude,
+                         lon=chart_df.longitude,
+                         hover_name=chart_df.name,
+                         zoom=0.5
+                         # title="Where have the paralympics been held?"
+                         )
     return fig
 
 
@@ -86,7 +110,7 @@ def bar_chart(event_type):
     fig = px.bar(df_plot,
                  x='xlabel',
                  y=['Male', 'Female'],
-                 title=f'How has the ratio of female:male participants changed in the {event_type} paralympics?',
+                 # title=f'How has the ratio of female:male participants changed in the {event_type} paralympics?',
                  labels={'xlabel': '', 'value': '', 'variable': ''},
                  template="simple_white"
                  )
@@ -95,40 +119,15 @@ def bar_chart(event_type):
     return fig
 
 
-def scatter_map():
-    """ Creates a scatter chart with locations of all Paralympics
-
-    Returns:
-        fig: Plotly Express scatter geo figure
-    """
-
-    # Prepare the data
-    df = get_api_data("http://127.0.0.1:8000/all")
-    chart_df = df[["year", "place_name", "latitude", "longitude"]]
-    # The lat and lon must be floats for the scatter_geo
-    chart_df['longitude'] = chart_df['longitude'].astype(float)
-    chart_df['latitude'] = chart_df['latitude'].astype(float)
-    # Add a new column that concatenates the place_name and year e.g. Barcelona 2012
-    chart_df['name'] = chart_df['place_name'] + ' ' + chart_df['year'].astype(str)
-
-    # Create the figure
-    fig = px.scatter_geo(chart_df,
-                         lat=chart_df.latitude,
-                         lon=chart_df.longitude,
-                         hover_name=chart_df.name,
-                         title="Where have the paralympics been held?"
-                         )
-    return fig
-
-
+# Delete this, temporary use to check the charts display
 if __name__ == '__main__':
-    fig_sport = line_chart("sports")
-    fig_sport.show()
-    fig_part = line_chart("participants")
-    fig_part.show()
-    fig_sport_bar = bar_chart("Winter")
-    fig_sport_bar.show()
-    fig_part_bar = bar_chart("Summer")
-    fig_part_bar.show()
-    fig_sport_scatter = scatter_map()
-    fig_sport_scatter.show()
+    # fig_sport = line_chart("sports")
+    # fig_sport.show()
+    # fig_part = line_chart("participants")
+    # fig_part.show()
+
+    # fig_map = scatter_geo()
+    # fig_map.show()
+
+    fig_bar = bar_chart('winter')
+    fig_bar.show()

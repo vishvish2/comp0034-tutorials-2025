@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Any, Optional
 
 from fastapi.exceptions import HTTPException
 from sqlmodel import select
@@ -38,6 +38,24 @@ class QuizService:
         return result
 
     @staticmethod
+    def get_response(session: SessionDep, r_id: int) -> Response:
+        """ Method to retrieve a repsonse by its ID.
+        Args:
+            session: SQLModel session
+            r_id: Response.id
+
+        Returns:
+            Response: Response object
+
+        Raises:
+            HTTPException 404 Not Found
+            """
+        result: Optional[Question] = session.get(Response, r_id)
+        if not result:
+            raise HTTPException(status_code=404, detail=f"Response with id {r_id} not found")
+        return result
+
+    @staticmethod
     def get_questions(session: SessionDep) -> list[Question]:
         statement = select(Question)
         result = session.exec(statement).all()
@@ -50,9 +68,10 @@ class QuizService:
         statement = select(Response).where(Response.question_id == q_id)
         result = session.exec(statement).all()
         if not result:
-            raise HTTPException(status_code=404, detail=f"No responses found for question with id {q_id}")
+            raise HTTPException(status_code=404,
+                                detail=f"No responses found for question with id {q_id}")
         return list(result)
-    
+
     @staticmethod
     def create_question(db: SessionDep, question_create: QuestionCreate) -> Question:
         """ Method to create a new Question.
@@ -86,7 +105,7 @@ class QuizService:
         db.commit()
         db.refresh(new_r)
         return new_r
-    
+
     def delete_question(self, session: SessionDep, q_id: int) -> Any:
         """ Delete a Question by its ID.
 
@@ -122,8 +141,7 @@ class QuizService:
             session.delete(r)
             session.commit()
             return {}
-        
-    
+
     def update_question(self, session: SessionDep, q_id: int, update_data: dict):
         """ Method to update a Question object.
 

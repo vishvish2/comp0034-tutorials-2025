@@ -1,26 +1,16 @@
-""" Schemas for the paralympics app
+"""Pydantic schemas for API requests and responses using SQLModel
 
-This module contains:
-- Base classes defining core fields
-- SQLModel database table classes
-- Create schemas for POST requests
-- Read schemas for GET responses
-- Update schemas for PUT/PATCH requests
-
-Key points:
-- All Base classes inherit from SQLModel
-- Database models inherit from Base and add table=True
-- Create schemas inherit from Base (without id)
-- Read schemas inherit from Base and include id field
-- Read schemas use Pydantic v2 syntax: `model_config = ConfigDict(from_attributes=True)`
-- Update schemas have all fields as Optional for partial updates
-- Validators are preserved where applicable
+Prompt: Generate Create, Read and Update schemas using SQLModel for each of the models in models.py
+Use model_config = ConfigDict(from_attributes=True) in the Read models, and not class Config:  from_attributes=True
 """
 from typing import Optional
-
-from pydantic import ConfigDict, EmailStr, Field, field_validator
+from pydantic import ConfigDict, field_validator
 from sqlmodel import SQLModel
 
+
+# ============================================================================
+# Games Schemas
+# ============================================================================
 
 class GamesBase(SQLModel):
     """Base schema for Games with core fields"""
@@ -63,6 +53,7 @@ class GamesCreate(GamesBase):
 class GamesRead(GamesBase):
     """Schema for reading a Games record"""
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
 
 class GamesUpdate(SQLModel):
@@ -99,6 +90,10 @@ class GamesUpdate(SQLModel):
                 raise ValueError(f"{value} must be between 1960 and 9999")
         return value
 
+
+# ============================================================================
+# Team Schemas
+# ============================================================================
 
 class TeamBase(SQLModel):
     """Base schema for Team with core fields"""
@@ -162,6 +157,10 @@ class TeamUpdate(SQLModel):
         return value
 
 
+# ============================================================================
+# Disability Schemas
+# ============================================================================
+
 class DisabilityBase(SQLModel):
     """Base schema for Disability with core fields"""
     description: str
@@ -175,12 +174,17 @@ class DisabilityCreate(DisabilityBase):
 class DisabilityRead(DisabilityBase):
     """Schema for reading a Disability record"""
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DisabilityUpdate(SQLModel):
     """Schema for updating a Disability record - all fields optional"""
     description: Optional[str] = None
 
+
+# ============================================================================
+# Host Schemas
+# ============================================================================
 
 class HostBase(SQLModel):
     """Base schema for Host with core fields"""
@@ -198,6 +202,7 @@ class HostCreate(HostBase):
 class HostRead(HostBase):
     """Schema for reading a Host record"""
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
 
 class HostUpdate(SQLModel):
@@ -207,6 +212,10 @@ class HostUpdate(SQLModel):
     longitude: Optional[float] = None
     country_id: Optional[int] = None
 
+
+# ============================================================================
+# Country Schemas
+# ============================================================================
 
 class CountryBase(SQLModel):
     """Base schema for Country with core fields"""
@@ -221,12 +230,17 @@ class CountryCreate(CountryBase):
 class CountryRead(CountryBase):
     """Schema for reading a Country record"""
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CountryUpdate(SQLModel):
     """Schema for updating a Country record - all fields optional"""
     country_name: Optional[str] = None
 
+
+# ============================================================================
+# Question Schemas
+# ============================================================================
 
 class QuestionBase(SQLModel):
     """Base schema for Question with core fields"""
@@ -241,12 +255,17 @@ class QuestionCreate(QuestionBase):
 class QuestionRead(QuestionBase):
     """Schema for reading a Question record"""
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
 
 class QuestionUpdate(SQLModel):
     """Schema for updating a Question record - all fields optional"""
     question_text: Optional[str] = None
 
+
+# ============================================================================
+# Response Schemas
+# ============================================================================
 
 class ResponseBase(SQLModel):
     """Base schema for Response with core fields"""
@@ -263,6 +282,7 @@ class ResponseCreate(ResponseBase):
 class ResponseRead(ResponseBase):
     """Schema for reading a Response record"""
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ResponseUpdate(SQLModel):
@@ -272,52 +292,57 @@ class ResponseUpdate(SQLModel):
     is_correct: Optional[bool] = None
 
 
-# Created after Question and Response
-class QuestionWithResponsesRead(QuestionRead):
-    responses: list[ResponseRead] = []
+# ============================================================================
+# Link Table Schemas (for many-to-many relationships)
+# ============================================================================
+
+class GamesHostBase(SQLModel):
+    """Base schema for GamesHost link table"""
+    games_id: int
+    host_id: int
 
 
-class ParalympicsRead(SQLModel):
-    """Response model for 'all data' endpoint"""
-    country_name: str
-    event_type: str
-    year: Optional[int] = None
-    place_name: Optional[str] = None
-    events: Optional[int] = None
-    sports: Optional[int] = None
-    countries: Optional[int] = None
-    participants_m: Optional[int] = None
-    participants_f: Optional[int] = None
-    participants: Optional[int] = None
-    start_date: Optional[str] = None
-    end_date: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+class GamesHostCreate(GamesHostBase):
+    """Schema for creating a new GamesHost link"""
+    pass
 
 
-# Added for the auth demo only
-# Copied and adapted from: https://github.com/fastapi/full-stack-fastapi-template/blob/master/backend/app/models.py
-class UserBase(SQLModel):
-    email: EmailStr = Field(unique=True, index=True, max_length=255)
-
-
-class UserCreate(SQLModel):
-    email: EmailStr = Field(max_length=255)
-    password: str = Field(min_length=4, max_length=128)
-
-
-class UserRead(UserBase):
+class GamesHostRead(GamesHostBase):
+    """Schema for reading a GamesHost link"""
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
 
-class Token(SQLModel):
-    access_token: str
-    token_type: str = "bearer"
+class GamesDisabilityBase(SQLModel):
+    """Base schema for GamesDisability link table"""
+    games_id: int
+    disability_id: int
 
 
-class TokenPayload(SQLModel):
-    sub: Optional[str] = None
+class GamesDisabilityCreate(GamesDisabilityBase):
+    """Schema for creating a new GamesDisability link"""
+    pass
 
 
-class Message(SQLModel):
-    message: str
+class GamesDisabilityRead(GamesDisabilityBase):
+    """Schema for reading a GamesDisability link"""
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GamesTeamBase(SQLModel):
+    """Base schema for GamesTeam link table"""
+    games_id: int
+    team_id: str
+
+
+class GamesTeamCreate(GamesTeamBase):
+    """Schema for creating a new GamesTeam link"""
+    pass
+
+
+class GamesTeamRead(GamesTeamBase):
+    """Schema for reading a GamesTeam link"""
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+

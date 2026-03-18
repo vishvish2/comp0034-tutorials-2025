@@ -7,19 +7,17 @@ name = "comp0034-activities"
 version = "2025.01"
 requires-python = ">=3.12"
 dependencies = [
-    "flask",
-    "pandas",
-    "streamlit",
-    "dash",
-    "dash-ag-grid",
-    "dash-bootstrap-components",
-    "openpyxl",
-    "fastapi",
-    "uvicorn",
-    "pylint",
     "fastapi[standard]",
+    "uvicorn",
     "sqlmodel",
     "pytest",
-    "pytest-cov",
+    "pandas",
     "alembic",
+    "openpyxl",
+    "streamlit",
+    "plotly",
+    "requests",
+    "pyjwt",
+    "pydantic-settings",
+    "pwdlib[argon2,bcrypt]"
 ]
