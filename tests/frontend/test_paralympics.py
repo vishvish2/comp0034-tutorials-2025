@@ -3,7 +3,7 @@ from playwright.sync_api import Page, expect
 from streamlit.testing.v1 import AppTest
 
 at = AppTest.from_file("src/paralympics/app.py").run()
-APP_FILE = Path(__file__).parent.parent.joinpath(
+APP_FILE = Path(__file__).parent.parent.parent.joinpath(
     "src", "paralympics", "app.py")
 
 
@@ -14,7 +14,7 @@ def test_questions_header():
     THEN there should be a header with the text "Questions"
     """
     # Load the Streamlit app from file and run it
-    app_file = Path(__file__).parent.parent.joinpath("src", "paralympics",
+    app_file = Path(__file__).parent.parent.parent.joinpath("src", "paralympics",
                                                      "app.py")
     at = AppTest.from_file(app_file).run()
     # App ran without error

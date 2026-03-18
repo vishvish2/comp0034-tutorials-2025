@@ -87,3 +87,51 @@ FROM games JOIN games_host AS games_host_1 ON games.id = games_host_1.games_id J
 FROM games JOIN games_host AS games_host_1 ON games.id = games_host_1.games_id JOIN host ON host.id = games_host_1.host_id JOIN country ON host.country_id = country.id
 2026-03-18 13:29:14,156 - sqlalchemy.engine.Engine - INFO - [generated in 0.00035s] ()
 2026-03-18 13:29:14,160 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-03-18 13:33:46,695 - __main__ - INFO - Application shutting down...
+2026-03-18 13:43:42,346 - __main__ - INFO - Initializing database...
+2026-03-18 13:43:42,348 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-03-18 13:43:42,368 - sqlalchemy.engine.Engine - INFO - SELECT games.event_type, games.year, games.start_date, games.end_date, games.countries, games.events, games.sports, games.participants_m, games.participants_f, games.participants, games.highlights, games.url, games.id 
+FROM games
+2026-03-18 13:43:42,368 - sqlalchemy.engine.Engine - INFO - [generated in 0.00041s] ()
+2026-03-18 13:43:42,370 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-03-18 13:43:42,370 - __main__ - INFO - Application startup complete
+2026-03-18 13:43:51,591 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-03-18 13:43:51,593 - sqlalchemy.engine.Engine - INFO - SELECT question.question_text, question.id 
+FROM question
+2026-03-18 13:43:51,593 - sqlalchemy.engine.Engine - INFO - [generated in 0.00041s] ()
+2026-03-18 13:43:51,596 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-03-18 13:43:51,604 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-03-18 13:43:51,607 - sqlalchemy.engine.Engine - INFO - SELECT question.question_text AS question_question_text, question.id AS question_id 
+FROM question 
+WHERE question.id = ?
+2026-03-18 13:43:51,607 - sqlalchemy.engine.Engine - INFO - [generated in 0.00035s] (1,)
+2026-03-18 13:43:51,609 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-03-18 13:43:51,614 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-03-18 13:43:51,616 - sqlalchemy.engine.Engine - INFO - SELECT response.response_text, response.is_correct, response.id, response.question_id 
+FROM response 
+WHERE response.question_id = ?
+2026-03-18 13:43:51,617 - sqlalchemy.engine.Engine - INFO - [generated in 0.00029s] (1,)
+2026-03-18 13:43:51,620 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-03-18 13:43:53,637 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-03-18 13:43:53,643 - sqlalchemy.engine.Engine - INFO - SELECT country.country_name, games.event_type, games.year, games.start_date, games.end_date, host.place_name, games.events, games.sports, games.countries, games.participants_m, games.participants_f, games.participants, host.latitude, host.longitude 
+FROM games JOIN games_host AS games_host_1 ON games.id = games_host_1.games_id JOIN host ON host.id = games_host_1.host_id JOIN country ON host.country_id = country.id
+2026-03-18 13:43:53,643 - sqlalchemy.engine.Engine - INFO - [generated in 0.00036s] ()
+2026-03-18 13:43:53,647 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-03-18 13:43:56,016 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-03-18 13:43:56,017 - sqlalchemy.engine.Engine - INFO - SELECT question.question_text, question.id 
+FROM question
+2026-03-18 13:43:56,017 - sqlalchemy.engine.Engine - INFO - [generated in 0.00021s] ()
+2026-03-18 13:43:56,019 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-03-18 13:43:56,026 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-03-18 13:43:56,028 - sqlalchemy.engine.Engine - INFO - SELECT question.question_text AS question_question_text, question.id AS question_id 
+FROM question 
+WHERE question.id = ?
+2026-03-18 13:43:56,028 - sqlalchemy.engine.Engine - INFO - [generated in 0.00035s] (1,)
+2026-03-18 13:43:56,031 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-03-18 13:43:56,038 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-03-18 13:43:56,039 - sqlalchemy.engine.Engine - INFO - SELECT response.response_text, response.is_correct, response.id, response.question_id 
+FROM response 
+WHERE response.question_id = ?
+2026-03-18 13:43:56,040 - sqlalchemy.engine.Engine - INFO - [generated in 0.00037s] (1,)
+2026-03-18 13:43:56,042 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-03-18 13:46:40,123 - __main__ - INFO - Application shutting down...

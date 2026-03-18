@@ -6,8 +6,8 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlmodel import Session
 
 from backend.core.db import get_engine, init_db
@@ -60,14 +60,11 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application.
 
-        Sets up the FastAPI application with CORS middleware and API routes.
-        Configures allowed origins for cross-origin requests and registers
-        the routers.
+    Sets up the FastAPI application with CORS middleware and API routes.
 
-        Returns:
-            FastAPI:  FastAPI application instance.
+    Returns:
+        FastAPI:  FastAPI application instance.
     """
-
     app = FastAPI(
         title="Paralympics API",
         lifespan=lifespan,
@@ -107,6 +104,8 @@ def create_app() -> FastAPI:
     app.include_router(auth_router.router)
 
     return app
+
+
 app = create_app()
 
 if __name__ == "__main__":
