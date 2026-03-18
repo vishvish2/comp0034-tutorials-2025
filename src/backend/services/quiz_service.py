@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 from fastapi.exceptions import HTTPException
 from sqlmodel import select
@@ -86,3 +86,39 @@ class QuizService:
         db.commit()
         db.refresh(new_r)
         return new_r
+    
+    def delete_question(self, session: SessionDep, q_id: int) -> Any:
+        """ Delete a Question by its ID.
+
+        Args:
+            session: FastAPI dependency with SQLModel session
+            q_id: id of the Question to delete
+
+        Returns:
+            {} if the Question is deleted, or None if not found
+            """
+        q = self.get_question(session, q_id)
+        if not q:
+            return None
+        else:
+            session.delete(q)
+            session.commit()
+            return {}
+
+    def delete_response(self, session: SessionDep, response_id: int) -> Any:
+        """ Delete a Response by its ID.
+
+        Args:
+            session: FastAPI dependency with SQLModel session
+            response_id: id of the Response to delete
+
+        Returns:
+            {} if the response is deleted, or None if not found
+            """
+        r = self.get_response(session, response_id)
+        if not r:
+            return None
+        else:
+            session.delete(r)
+            session.commit()
+            return {}

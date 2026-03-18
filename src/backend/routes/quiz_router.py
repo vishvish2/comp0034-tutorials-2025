@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status
+from fastapi.exceptions import HTTPException
 
 from backend.core.deps import SessionDep
 from backend.models.schemas import QuestionRead, ResponseRead, QuestionCreate, ResponseCreate
@@ -51,3 +52,36 @@ def create_response(session: SessionDep, create_data: ResponseCreate):
     """ Creates a new question  """
     new_question = crud.create_response(session, create_data)
     return new_question
+
+@router.delete("/responses/{response_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_response(session: SessionDep, response_id: int):
+    """ Delete a Response
+
+    The version returns 404 if the Response was not found and 204 if it was deleted
+    You could modify and return 204 in both cases
+
+    Returns:
+        {}: empty dict
+    """
+    resp = crud.delete_response(session, response_id)
+    if resp is None:
+        raise HTTPException(status_code=404, detail=f"Response with id {response_id} not found")
+    else:
+        return {}
+
+
+@router.delete("/questions/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_question(session: SessionDep, question_id: int):
+    """ Delete a Question
+
+    The version returns 404 if the Question was not found and 204 if it was deleted
+    You could modify and return 204 in both cases
+
+    Returns:
+        {}: empty dict
+    """
+    resp = crud.delete_question(session, question_id)
+    if resp is None:
+        raise HTTPException(status_code=404, detail=f"Response with id {question_id} not found")
+    else:
+        return {}

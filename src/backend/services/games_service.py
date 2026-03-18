@@ -100,3 +100,22 @@ class GamesService:
         session.commit()
         session.refresh(new_games)
         return new_games
+    
+
+    def delete_games(self, session: SessionDep, games_id: int) -> None:
+        """ Delete a paralympic Games
+
+        Args:
+            session: FastAPI dependency with SQLModel session
+            games_id: id of the Games to delete
+
+        Returns:
+            {} if the Games is deleted, or None if not found
+            """
+        games = self.get_games_by_id(session, games_id)
+        if not games:
+            return None
+        else:
+            session.delete(games)
+            session.commit()
+            return {}
