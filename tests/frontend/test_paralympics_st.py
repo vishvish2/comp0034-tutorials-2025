@@ -1,7 +1,7 @@
 from pathlib import Path
 
-
 from streamlit.testing.v1 import AppTest
+from playwright.sync_api import Page, expect
 
 APP_FILE = Path(__file__).parent.parent.parent.joinpath("src", "paralympics", "paralympics_dashboard.py")
 
@@ -38,4 +38,46 @@ def test_line_chart_selectors():
     # the sports data is chosen from the selector
     at.selectbox[1].set_value("Sports").run()
     assert at.selectbox[1].value == "Sports"
+
+
+# The Page fixture and app_server fixture are parameters for the method
+def test_page_has_body(page: Page, app_server):
+    """
+    GIVEN a server URL (app_server fixture yields the URL)
+    WHEN the 'home' page is requested
+    THEN the home page body should be displayed
+    """
+    # Use the page to go to the URL, in this case the app_server fixture yield
+    # the URL
+    page.goto(app_server)
+    expect(page).to_have_title("Paralympics Dashboard")
+
+    # expect(page.locator("body")).to_be_visible()
+    # For Streamlit use: expect(page.locator("body")).to_be_attached() or
+    # expect(page).to_have_title("Paralympics Dashboard")
+
+
+def test_line_chart_displays(page: Page, app_server):
+    # WHEN the home page is selected
+    page.goto(app_server)
+
+    # AND the line chart is chosen from the chart selector
+    chart_select = page.get_by_test_id("stSelectbox").filter(
+        has_text="Choose a chart:")
+    selectbox_input = chart_select.locator("input")
+    selectbox_input.click()
+    selectbox_input.fill("Trends")
+    selectbox_input.press("Enter")
+
+    # AND the sports data is chosen from the second selector
+    chart_select = page.get_by_test_id("stSelectbox").filter(
+        has_text="Choose feature:")
+    selectbox_input = chart_select.locator("input")
+    selectbox_input.click()
+    selectbox_input.fill("Sports")
+    selectbox_input.press("Enter")
+
+    # THEN a plotly line chart should be visible
+    expect(page.locator(".js-plotly-plot")).to_be_visible()
+
 
